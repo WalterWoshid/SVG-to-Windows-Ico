@@ -88,6 +88,12 @@ done
 # Validate arguments
 input_is_directory=false
 
+# Check if input is given
+if [ -z "$input" ]; then
+  usage
+  exit 0
+fi
+
 # Check if input is a file or directory
 if [ -f "$input" ]; then
   input_is_directory=false
