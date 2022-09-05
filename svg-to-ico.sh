@@ -65,6 +65,14 @@ while [[ $# -gt 0 ]]; do
       usage
       exit 0
       ;;
+    --*) # unsupported options
+      echo -e "${RED}Error:${NC} Unsupported option $1" >&2
+      suggest_help
+      ;;
+    -*) # unsupported flags
+      echo -e "${RED}Error:${NC} Unsupported flag $1" >&2
+      suggest_help
+      ;;
     *)
       POSITIONAL_ARGS+=("$1")
       shift
