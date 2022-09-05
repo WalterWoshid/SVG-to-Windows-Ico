@@ -85,6 +85,8 @@ for arg in "${POSITIONAL_ARGS[@]}"; do
   fi
 done
 
+
+
 # Validate arguments
 input_is_directory=false
 
@@ -123,6 +125,13 @@ else
     suggest_help
     exit 1
   fi
+fi
+
+# Check if padding is a number
+if [ -n "$padding" ] && ! [[ "$padding" =~ ^[0-9]+$ ]]; then
+  echo -e "${RED}Padding must be a number${NC}"
+  suggest_help
+  exit 1
 fi
 
 
