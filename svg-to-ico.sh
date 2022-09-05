@@ -109,16 +109,19 @@ fi
 if [ -z "$output" ]; then
   output="$input"
 else
-  # If output has extension and is not .ico, show error
-  if [[ "$output" == *.* ]] && [[ "$output" != *.ico ]]; then
+  # If input is file and output has no extension, add .ico
+  if [ "$input_is_directory" = false ] && [[ "$output" != *.* ]]; then
+    output="$output.ico"
+  elif [ "$input_is_directory" = true ] && [[ "$output" = *.* ]]; then
+    # If input is directory and output has an extension, show error
+    echo -e "${RED}Output must be a directory when input is a directory${NC}"
+    suggest_help
+    exit 1
+  elif [[ "$output" == *.* ]] && [[ "$output" != *.ico ]]; then
+    # If output has extension and is not .ico, show error
     echo -e "${RED}Output must be a directory or have extension .ico${NC}"
     suggest_help
     exit 1
-  else
-    # If input is file and output has no extension, add .ico
-    if [ "$input_is_directory" = false ] && [[ "$output" != *.* ]]; then
-      output="$output.ico"
-    fi
   fi
 fi
 
