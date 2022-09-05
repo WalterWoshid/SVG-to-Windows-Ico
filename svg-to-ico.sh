@@ -229,11 +229,12 @@ else
     echo -e "${GREEN}Done! Converted ${YELLOW}$(echo "$files" | wc -l)${GREEN} files to ${YELLOW}${output}${NC}"
     exit 0
   else
-    # Run tasks in parallel
+    # Run all tasks in parallel
     i=0
     for file in $files; do
+      file_clean="${file%.*}" &&
       echo -e "${YELLOW}$((i+1)): Converting $file...${NC}" &&
-      convert_image "$file" "$output/$(basename "$file" .svg).ico" &
+      convert_image "$file" "$output/$file_clean.ico" &
 
       i=$((i+1))
       if [ $((i % tasks)) -eq 0 ]; then
