@@ -129,14 +129,14 @@ fi
 
 # Check if padding is a number
 if [ -n "$padding" ] && ! [[ "$padding" =~ ^[0-9]+$ ]]; then
-  echo -e "${RED}Padding must be a number${NC}"
+  echo -e "${RED}Padding option must be a number${NC}"
   suggest_help
   exit 1
 fi
 
 # Check if tasks is a number
 if ! [[ "$tasks" =~ ^[0-9]+$ ]]; then
-  echo -e "${RED}Tasks must be a number${NC}"
+  echo -e "${RED}Tasks option must be a number${NC}"
   suggest_help
   exit 1
 fi
