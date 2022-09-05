@@ -205,7 +205,7 @@ else
 
   # If no files are found, show error
   if [ -z "$files" ]; then
-    echo -e "${RED}No files found in directory${NC}"
+    echo -e "${RED}No files found in directory ${YELLOW}$input${NC}"
     suggest_help
     exit 1
   fi
