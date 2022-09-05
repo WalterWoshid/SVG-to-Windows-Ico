@@ -134,6 +134,13 @@ if [ -n "$padding" ] && ! [[ "$padding" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
+# Check if tasks is a number
+if ! [[ "$tasks" =~ ^[0-9]+$ ]]; then
+  echo -e "${RED}Tasks must be a number${NC}"
+  suggest_help
+  exit 1
+fi
+
 
 
 # When done or interrupted, remove the temporary files
