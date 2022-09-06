@@ -55,6 +55,11 @@
 `. svg-to-ico.sh icons -t 0`
 
 
+## Testing
+
+- Run `./tests/run-tests.sh` to run all tests
+
+
 
 ## Show your support
 
