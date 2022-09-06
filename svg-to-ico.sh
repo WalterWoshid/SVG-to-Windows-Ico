@@ -237,7 +237,6 @@ else
     exit 1
   fi
 
-  # If tasks is 0, run all tasks in parallel
   count=$(echo "$files" | wc -l)
   echo -e "${YELLOW}Converting $input... (files: $count)${NC}"
 
@@ -246,6 +245,7 @@ else
     echo -e "${YELLOW}This may take a while...${NC}"
   fi
 
+  # If tasks is 0, run all tasks in parallel
   if [ "$tasks" -eq 0 ]; then
     for file in $files; do
       convert_image "$file" "$output/$(basename "$file" .svg).ico" &&
@@ -261,7 +261,7 @@ else
     for file in $files; do
       file_clean="${file%.*}" &&
       echo -e "${YELLOW}$((i+1)): Converting $file...${NC}" &&
-      convert_image "$file" "$output/$file_clean.ico" &
+      convert_image "$file" "$file_clean.ico" &
 
       i=$((i+1))
       if [ $((i % tasks)) -eq 0 ]; then
