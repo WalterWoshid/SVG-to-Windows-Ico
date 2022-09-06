@@ -89,7 +89,6 @@ for arg in "${POSITIONAL_ARGS[@]}"; do
   else
     echo -e "${RED}Too many arguments given${NC}"
     suggest_help
-    exit 1
   fi
 done
 
@@ -112,7 +111,6 @@ elif [ -d "$input" ]; then
 else
   echo -e "${RED}Input is not a valid file or directory${NC}"
   suggest_help
-  exit 1
 fi
 
 # If output is not given, use the same path as the input file
@@ -126,12 +124,10 @@ else
     # If input is directory and output has an extension, show error
     echo -e "${RED}Output must be a directory when input is a directory${NC}"
     suggest_help
-    exit 1
   elif [[ "$output" == *.* ]] && [[ "$output" != *.ico ]]; then
     # If output has extension and is not .ico, show error
     echo -e "${RED}Output must be a directory or have extension .ico${NC}"
     suggest_help
-    exit 1
   fi
 fi
 
@@ -139,14 +135,12 @@ fi
 if [ -n "$padding" ] && ! [[ "$padding" =~ ^[0-9]+$ ]]; then
   echo -e "${RED}Padding option must be a number${NC}"
   suggest_help
-  exit 1
 fi
 
 # Check if tasks is a number
 if ! [[ "$tasks" =~ ^[0-9]+$ ]]; then
   echo -e "${RED}Tasks option must be a number${NC}"
   suggest_help
-  exit 1
 fi
 
 
@@ -228,16 +222,24 @@ if [ "$input_is_directory" = false ]; then
   exit 0
 else
   # If input is a directory, convert all images in the directory
-  files=$(find "$input" -type f -name "*.svg")
+
+  # Get all input files and also map them to output files
+  input_files=()
+  mapfile -t input_files < <(find "$input" -type f -name "*.svg")
+  output_files=()
+  for input_file in "${input_files[@]}"; do
+    output_file="${input_file/$input/$output}"
+    output_file="${output_file%.*}.ico"
+    output_files+=("$output_file")
+  done
 
   # If no files are found, show error
-  if [ -z "$files" ]; then
+  if [ ${#input_files[@]} -eq 0 ]; then
     echo -e "${RED}No files found in directory ${YELLOW}$input${NC}"
     suggest_help
-    exit 1
   fi
 
-  count=$(echo "$files" | wc -l)
+  count=${#input_files[@]}
   echo -e "${YELLOW}Converting $input... (files: $count)${NC}"
 
   # If more than 25 files, show "This may take a while"
@@ -247,21 +249,28 @@ else
 
   # If tasks is 0, run all tasks in parallel
   if [ "$tasks" -eq 0 ]; then
-    for file in $files; do
-      convert_image "$file" "$output/$(basename "$file" .svg).ico" &&
-      echo -e "${GREEN}Converted $file to $output/$(basename "$file" .svg).ico${NC}" &
+    for i in "${!input_files[@]}"; do
+      input_file="${input_files[$i]}"
+      output_file="${output_files[$i]}"
+
+      convert_image "$input_file" "$output_file" &&
+      echo -e "${GREEN}Converted $input_file to $output_file${NC}" &
     done
     wait
 
-    echo -e "${GREEN}Done! Converted ${YELLOW}$(echo "$files" | wc -l)${GREEN} files to ${YELLOW}${output}${NC}"
+    echo -e "${GREEN}Done! Converted ${YELLOW}${count})${GREEN} files to ${YELLOW}${output}${NC}"
     exit 0
   else
-    # Run all tasks in parallel
+    # Run tasks in parallel
     i=0
-    for file in $files; do
-      file_clean="${file%.*}" &&
-      echo -e "${YELLOW}$((i+1)): Converting $file...${NC}" &&
-      convert_image "$file" "$file_clean.ico" &
+    for i in "${!input_files[@]}"; do
+      input_file="${input_files[$i]}"
+      output_file="${output_files[$i]}"
+      echo "INPUT: $input_file"
+      echo "OUTPUT: $output_file"
+
+      echo -e "${YELLOW}$((i+1)): Converting $input_file...${NC}" &&
+      convert_image "$input_file" "$output_file" &
 
       i=$((i+1))
       if [ $((i % tasks)) -eq 0 ]; then
@@ -269,12 +278,12 @@ else
       fi
 
       # If the last task is not finished, wait for it
-      if [ $i -eq "$(echo "$files" | wc -l)" ]; then
+      if [ $i -eq "$count" ]; then
         wait
       fi
     done
 
-    echo -e "${GREEN}Done! Converted ${YELLOW}$(echo "$files" | wc -l)${GREEN} file(s) to ${YELLOW}${output}${NC}"
+    echo -e "${GREEN}Done! Converted ${YELLOW}${count}${GREEN} file(s) to ${YELLOW}${output}${NC}"
     exit 0
   fi
 fi
