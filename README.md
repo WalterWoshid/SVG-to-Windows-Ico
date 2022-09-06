@@ -18,7 +18,10 @@
 
 ## Installation
 
+- Install the dependencies: 
+  - `sudo apt install -y icoutils inkscape imagemagick`
 - Download the `svg-to-ico.sh` script file.
+- Make it executable: `chmod +x svg-to-ico.sh`
 - Run it with `./svg-to-ico.sh` and see the help section for more information
 
 
@@ -57,6 +60,7 @@
 
 ## Testing
 
+- Make it executable: `chmod +x ./tests/run-tests.sh`
 - Run `./tests/run-tests.sh` to run all tests
 
 
