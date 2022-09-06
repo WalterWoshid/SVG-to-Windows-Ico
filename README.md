@@ -1,3 +1,4 @@
+<!--suppress HtmlDeprecatedAttribute -->
 <h1 align="center">SVG-to-(Windows)-Ico</h1>
 
 <p align="center">
@@ -15,10 +16,43 @@
 
 
 
-## Usage
+## Installation
 
 - Download the `svg-to-ico.sh` script file.
 - Run it with `./svg-to-ico.sh` and see the help section for more information
+
+
+# Usage
+
+`svg-to-ico.sh [options] input [output]`
+
+### Convert single image
+
+`. svg-to-ico.sh icon.svg`
+
+### Convert single image with custom output name
+
+`. svg-to-ico.sh icon.svg my-icon.ico`
+
+### Convert directory with images
+
+`. svg-to-ico.sh icons`
+
+### Convert directory with custom output name
+
+`. svg-to-ico.sh icons my-icons`
+
+### Convert image with 20 pixels padding
+
+`. svg-to-ico.sh icon.svg -p 20`
+
+### Convert directory with 20 tasks in parallel
+
+`. svg-to-ico.sh icons -t 20`
+
+### Convert directory by running all tasks in parallel
+
+`. svg-to-ico.sh icons -t 0`
 
 
 
