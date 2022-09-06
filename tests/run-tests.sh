@@ -62,6 +62,13 @@ fail_file() {
   failed_tests=$((failed_tests + 1))
 }
 
+success() {
+  test_name="$1"
+
+  echo -e "${BG_GREEN}Test passed${NC} - $test_name"
+  echo
+}
+
 test_file() {
   cleanup_icons
 
@@ -70,26 +77,19 @@ test_file() {
   expected_files="$3"
 
   # Run test
-  eval "$test_command" > /dev/null 2>&1
+  eval "'$script_path' $test_command" > /dev/null 2>&1
 
   # Check if files exist
   for file in $expected_files; do
     if [ ! -f "$file" ]; then
       # actual_files = all .ico files without without ./ prefix and in same line
-      actual_files=$(find . -name "*.ico" -type f | sed -r "s/^\.\///g" | tr '\n' ' ')
+      actual_files=$(find "$script_dir" -name "*.ico" -type f | sed -r "s/^\.\///g" | tr '\n' ' ')
       fail_file "$test_name" "$file" "$expected_files" "$actual_files"
       return
     fi
   done
 
   success "$test_name"
-}
-
-success() {
-  test_name="$1"
-
-  echo -e "${BG_GREEN}Test passed${NC} - $test_name"
-  echo
 }
 
 test_grep() {
@@ -100,7 +100,7 @@ test_grep() {
 
   test_name="$1"
   test_command="$2"
-  test_result="$(eval "$test_command" 2>&1)"
+  test_result="$(eval "'$script_path' $test_command" 2>&1)"
   expected_grep="$3"
 
   if [[ "$test_result" =~ $expected_grep ]]; then
@@ -124,30 +124,32 @@ finally() {
 
 
 
-script_path="../svg-to-ico.sh"
+script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "$script_dir"
+script_path="$script_dir/../svg-to-ico.sh"
 
-test_grep "Usage --help"     "'$script_path' --help"                 "Usage:"
-test_grep "Usage -h"         "'$script_path' -h"                     "Usage:"
-test_grep "Usage no args"    "'$script_path'"                        "Usage:"
-test_grep "Invalid file"     "'$script_path' invalid-file.svg"       "Input is not a valid file or directory"
-test_grep "Invalid dir"      "'$script_path' invalid-dir"            "Input is not a valid file or directory"
-test_grep "Invalid output"   "'$script_path' folder im-a-file.ico"   "Output must be a directory when input is a directory"
-test_grep "Invalid padding"  "'$script_path' folder -p im-a-string"  "Padding option must be a number"
-test_grep "Invalid tasks"    "'$script_path' folder -t im-a-string"  "Tasks option must be a number"
-test_grep "Invalid flag"     "'$script_path' folder -x"              "Unsupported flag"
-test_grep "Invalid option"   "'$script_path' folder --invalid"       "Unsupported option"
+test_grep "Usage --help"     "--help"                 "Usage:"
+test_grep "Usage -h"         "-h"                     "Usage:"
+test_grep "Usage no args"    ""                       "Usage:"
+test_grep "Invalid file"     "invalid-file.svg"       "Input is not a valid file or directory"
+test_grep "Invalid dir"      "invalid-dir"            "Input is not a valid file or directory"
+test_grep "Invalid output"   "folder im-a-file.ico"   "Output must be a directory when input is a directory"
+test_grep "Invalid padding"  "folder -p im-a-string"  "Padding option must be a number"
+test_grep "Invalid tasks"    "folder -t im-a-string"  "Tasks option must be a number"
+test_grep "Invalid flag"     "folder -x"              "Unsupported flag"
+test_grep "Invalid option"   "folder --invalid"       "Unsupported option"
 
-test_file "Single file"         "'$script_path' test.svg"           "test.ico"
-test_file "Single file out"     "'$script_path' test.svg dest.ico"  "dest.ico"
-test_file "Single file in dir"  "'$script_path' folder/test.svg"    "folder/test.ico"
+test_file "Single file"         "test.svg"           "test.ico"
+test_file "Single file out"     "test.svg dest.ico"  "dest.ico"
+test_file "Single file in dir"  "folder/test.svg"    "folder/test.ico"
 
-test_file "Directory"         "'$script_path' folder"                 "folder/subfolder/test.ico folder/test.ico"
-test_file "Subdirectory"      "'$script_path' folder/subfolder"       "folder/subfolder/test.ico"
-test_file "Directory out"     "'$script_path' folder dest"            "dest/subfolder/test.ico dest/test.ico"
-test_file "Subdirectory out"  "'$script_path' folder/subfolder dest"  "dest/test.ico"
+test_file "Directory"         "folder"                 "folder/subfolder/test.ico folder/test.ico"
+test_file "Subdirectory"      "folder/subfolder"       "folder/subfolder/test.ico"
+test_file "Directory out"     "folder dest"            "dest/subfolder/test.ico dest/test.ico"
+test_file "Subdirectory out"  "folder/subfolder dest"  "dest/test.ico"
 
-test_file "Directory padding"   "'$script_path' folder -p 10"  "folder/subfolder/test.ico folder/test.ico"
-test_file "Directory tasks"     "'$script_path' folder -t 1"   "folder/subfolder/test.ico folder/test.ico"
-test_file "Directory parallel"  "'$script_path' folder -t 0"   "folder/subfolder/test.ico folder/test.ico" 1
+test_file "Directory padding"   "folder -p 10"  "folder/subfolder/test.ico folder/test.ico"
+test_file "Directory tasks"     "folder -t 1"   "folder/subfolder/test.ico folder/test.ico"
+test_file "Directory parallel"  "folder -t 0"   "folder/subfolder/test.ico folder/test.ico"
 
 finally
