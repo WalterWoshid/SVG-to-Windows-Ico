@@ -20,6 +20,14 @@
 
 
 
+## Example
+<p align="middle">
+  <img src="https://user-images.githubusercontent.com/36635504/215357640-7f5ab8d7-1819-4ad2-ba7c-e19615f70bf4.png">
+  <p align="middle"><b>Compatible with Windows</b></p>
+</p>
+
+
+
 ## Installation
 
 - Install the dependencies: 
