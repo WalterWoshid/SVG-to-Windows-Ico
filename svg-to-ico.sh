@@ -169,7 +169,7 @@ convert_image() {
 
   # Some image magic
   for size in 16 24 32 48 64 96 128 256; do
-    inkscape -e "$temp_dir/$size.png" -w "$size" -h "$size" "$1" >/dev/null 2>&1
+    inkscape -o "$temp_dir/$size.png" -w "$size" -h "$size" "$1" >/dev/null 2>&1
   done
 
   # Some more image magic
